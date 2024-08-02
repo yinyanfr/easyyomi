@@ -1,0 +1,40 @@
+{
+  "name": "easyyomi",
+  "version": "0.1.0",
+  "description": "easyyomi is a lightweight server for your manga / comic contents",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ./src",
+    "build": "npm run lint && tsc",
+    "clean": "rm -rf dist/",
+    "prepublishOnly": "tsc",
+    "lint-staged": "lint-staged",
+    "prepare": "husky"
+  },
+  "keywords": [
+    "manga",
+    "comic",
+    "server"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yinyanfr/easyyomi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yinyanfr/easyyomi/issues"
+  },
+  "homepage": "https://github.com/yinyanfr/easyyomi#readme",
+  "author": "Yan",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.8.0",
+    "@types/node": "^22.1.0",
+    "eslint": "^9.8.0",
+    "globals": "^15.9.0",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.0.0"
+  }
+}
