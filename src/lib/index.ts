@@ -8,6 +8,18 @@ import {
 // import { PDFDocument } from 'pdf-lib';
 // import pdfPoppler from 'pdf-poppler';
 
+const archiveExtensions = ['.zip', '.cbz', '.rar', '.cbr'];
+const imageExtensions = [
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.gif',
+  '.bmp',
+  '.tiff',
+  '.avif',
+];
+
 /**
  * Asynchronously fetches manga series from a local directory path that contains manga series in folders.
  * Each manga series is represented by a folder in the given directory.
@@ -75,12 +87,14 @@ export async function getChapters(seriePath: string) {
     const filePath = join(seriePath, file);
     const stats = await stat(filePath);
 
-    const chapter = {
-      name: file,
-      lastModified: stats.mtime,
-    };
+    if (stats.isDirectory() || archiveExtensions.includes(extname(file))) {
+      const chapter = {
+        name: file,
+        lastModified: stats.mtime,
+      };
 
-    chapters.push(chapter);
+      chapters.push(chapter);
+    }
   }
 
   return chapters;
@@ -116,11 +130,15 @@ export async function getChapterPages(chapterPath: string) {
   } else if (extension === '.zip' || extension === '.cbz') {
     const zip = new AdmZip(chapterPath);
     const zipEntries = zip.getEntries();
-    identifiers = zipEntries.map(entry => entry.entryName);
+    identifiers = zipEntries
+      .map(entry => entry.entryName)
+      .filter(name => imageExtensions.includes(extname(name)));
   } else if (extension === '.rar' || extension === '.cbr') {
     const extractor = await createExtractorFromFile({ filepath: chapterPath });
     const entries = extractor.getFileList();
-    identifiers = Array.from(entries.fileHeaders).map(file => file.name);
+    identifiers = Array.from(entries.fileHeaders)
+      .map(file => file.name)
+      .filter(name => imageExtensions.includes(extname(name)));
     // } else if (extension === '.pdf') {
     //   const dataBuffer = await readFile(chapterPath);
     //   const data = await PDFDocument.load(dataBuffer);
@@ -130,7 +148,9 @@ export async function getChapterPages(chapterPath: string) {
     throw new Error('Unsupported chapter format');
   }
 
-  return identifiers;
+  return identifiers.sort((a, b) => {
+    return parseInt(a) - parseInt(b);
+  });
 }
 
 /**

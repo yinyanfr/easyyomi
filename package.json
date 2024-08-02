@@ -1,6 +1,6 @@
 {
   "name": "easyyomi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "easyyomi is a lightweight server for your manga / comic contents",
   "main": "index.js",
   "scripts": {
