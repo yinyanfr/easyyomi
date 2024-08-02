@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Manga Reader</title>
+  <style>
+    ul {
+      list-style-type: none;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Manga Reader</h1>
+  <div id="content"></div>
+
+  <script>
+    const content = document.getElementById('content');
+
+    async function fetchSeries() {
+      const response = await fetch('/api/series');
+      const series = await response.json();
+
+      const seriesList = document.createElement('ul');
+      for (const serie of series) {
+        const seriesItem = document.createElement('li');
+        seriesItem.textContent = serie.name;
+        seriesItem.addEventListener('click', () => fetchChapters(serie.name));
+        seriesList.appendChild(seriesItem);
+      }
+
+      content.innerHTML = '';
+      content.appendChild(seriesList);
+    }
+
+    async function fetchChapters(seriesName) {
+      const response = await fetch(`/api/chapters/${seriesName}`);
+      const chapters = await response.json();
+
+      const chaptersList = document.createElement('ul');
+      for (const chapter of chapters) {
+        const chapterItem = document.createElement('li');
+        chapterItem.textContent = chapter.name;
+        chapterItem.addEventListener('click', () => fetchPages(seriesName, chapter.name));
+        chaptersList.appendChild(chapterItem);
+      }
+
+      content.innerHTML = '';
+      content.appendChild(chaptersList);
+    }
+
+    async function fetchPages(seriesName, chapterName) {
+      const response = await fetch(`/api/pages/${seriesName}/${chapterName}`);
+      const pages = await response.json();
+
+      const pagesList = document.createElement('ul');
+      for (const page of pages) {
+        const pageItem = document.createElement('li');
+        pageItem.textContent = page;
+        pageItem.addEventListener('click', () => showPage(seriesName, chapterName, page));
+        pagesList.appendChild(pageItem);
+      }
+
+      content.innerHTML = '';
+      content.appendChild(pagesList);
+    }
+
+    async function showPage(seriesName, chapterName, pageName) {
+      const response = await fetch(`/api/page/${seriesName}/${chapterName}/${encodeURIComponent(pageName)}`);
+      const page = await response.blob();
+
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(page);
+
+      content.innerHTML = '';
+      content.appendChild(img);
+    }
+
+    fetchSeries();
+  </script>
+</body>
+
+</html>
