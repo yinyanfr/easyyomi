@@ -1,8 +1,13 @@
 import { Router } from 'express';
 import { getChapterPages, getChapters, getMangaSeries, getPage } from '../lib';
 import { join } from 'node:path';
+import nodejieba from 'nodejieba';
+import OpenCC from 'opencc-js';
+import mimetics from 'mimetics';
 
-const local = join(__dirname, '../../local');
+const converter = OpenCC.Converter({ from: 'hk', to: 'cn' });
+
+const local = process.env.LOCAL ?? join(__dirname, '../../local');
 
 const app = Router();
 
@@ -15,6 +20,23 @@ app.get('/series', async (_, res) => {
   try {
     const series = await getMangaSeries(local);
     res.json(series);
+  } catch (err) {
+    res.status(500).send((err as Error).message);
+  }
+});
+
+/**
+ * GET /recent
+ * Retrieves the list of recently modified manga series.
+ * @returns {Promise<void>} A promise that resolves with the list of recently modified manga series.
+ */
+app.get('/recent', async (_, res) => {
+  try {
+    const series = await getMangaSeries(local);
+    const sorted = series.sort(
+      (a, b) => b.lastModified.getTime() - a.lastModified.getTime(),
+    );
+    res.json(sorted);
   } catch (err) {
     res.status(500).send((err as Error).message);
   }
@@ -47,7 +69,7 @@ app.get('/pages/:seriesName/:chapterName', async (req, res) => {
   const { seriesName, chapterName } = req.params;
   try {
     const pages = await getChapterPages(join(local, seriesName, chapterName));
-    res.json(pages);
+    res.json({ pages, seriesName, chapterName });
   } catch (err) {
     res.status(500).send((err as Error).message);
   }
@@ -64,11 +86,39 @@ app.get('/pages/:seriesName/:chapterName', async (req, res) => {
 app.get('/page/:seriesName/:chapterName/:pageName', async (req, res) => {
   const { seriesName, chapterName, pageName } = req.params;
   try {
-    const page = await getPage(join(local, seriesName, chapterName), pageName);
-    res.send(page);
+    const buffer = await getPage(
+      join(local, seriesName, chapterName),
+      pageName,
+    );
+    if (!buffer) {
+      throw new Error('Page not found');
+    }
+    const mimeInfo = mimetics(buffer);
+
+    if (mimeInfo) {
+      res.setHeader('Content-Type', mimeInfo.mime);
+      res.send(buffer);
+    } else {
+      throw new Error('Invalid image');
+    }
   } catch (err) {
     res.status(500).send((err as Error).message);
   }
+});
+
+/**
+ * GET /search/:keyword
+ * Retrieves the list of manga series that contain the specified keyword in their name.
+ * @param {string} keyword - The keyword to search for.
+ * @returns {Promise<void>} A promise that resolves with the list of manga series.
+ */
+app.get('/search/:keyword', async (req, res) => {
+  const { keyword } = req.params;
+  const series = await getMangaSeries(local);
+  const result = series.filter(s =>
+    nodejieba.cut(converter(s.name)).includes(converter(keyword)),
+  );
+  return res.json(result);
 });
 
 export default app;
