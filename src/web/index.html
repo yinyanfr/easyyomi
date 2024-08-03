@@ -54,7 +54,7 @@
       const pages = await response.json();
 
       const pagesList = document.createElement('ul');
-      for (const page of pages) {
+      for (const page of pages.pages) {
         const pageItem = document.createElement('li');
         pageItem.textContent = page;
         pageItem.addEventListener('click', () => showPage(seriesName, chapterName, page));
@@ -66,11 +66,9 @@
     }
 
     async function showPage(seriesName, chapterName, pageName) {
-      const response = await fetch(`/api/page/${seriesName}/${chapterName}/${encodeURIComponent(pageName)}`);
-      const page = await response.blob();
-
       const img = document.createElement('img');
-      img.src = URL.createObjectURL(page);
+      // img.src = URL.createObjectURL(page);
+      img.src = `/api/page/${seriesName}/${chapterName}/${encodeURIComponent(pageName)}`
 
       content.innerHTML = '';
       content.appendChild(img);

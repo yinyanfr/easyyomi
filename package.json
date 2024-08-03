@@ -1,6 +1,6 @@
 {
   "name": "easyyomi",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "easyyomi is a lightweight server for your manga / comic contents",
   "main": "index.js",
   "scripts": {
@@ -32,6 +32,7 @@
     "@types/adm-zip": "^0.5.5",
     "@types/express": "^4.17.21",
     "@types/node": "^22.1.0",
+    "@types/opencc-js": "^1.0.3",
     "eslint": "^9.8.0",
     "globals": "^15.9.0",
     "husky": "^9.1.4",
@@ -44,7 +45,11 @@
     "adm-zip": "^0.5.14",
     "express": "^4.19.2",
     "express-basic-auth": "^1.2.1",
+    "image-type": "^5.2.0",
+    "mimetics": "^0.0.8",
     "node-unrar-js": "^2.0.2",
+    "nodejieba": "^3.4.0",
+    "opencc-js": "^1.0.5",
     "pdf-lib": "^1.17.1",
     "pdf-poppler": "^0.2.1"
   }

@@ -1,5 +1,5 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
-import { extname, join } from 'node:path';
+import { basename, extname, join } from 'node:path';
 import AdmZip from 'adm-zip';
 import {
   createExtractorFromData,
@@ -91,6 +91,7 @@ export async function getChapters(seriePath: string) {
       const chapter = {
         name: file,
         lastModified: stats.mtime,
+        seriesName: basename(seriePath),
       };
 
       chapters.push(chapter);

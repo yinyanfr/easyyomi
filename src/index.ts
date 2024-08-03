@@ -18,6 +18,8 @@ if (process.env.BASIC_AUTH_USERNAME && process.env.BASIC_AUTH_PASSWORD) {
 
 app.use('/api', api);
 
+// app.get('/opds', (_, res) => {});
+
 app.get('/', (_, res) => {
   const filePath = join(__dirname, 'web', 'index.html');
   res.sendFile(filePath);
